@@ -1,0 +1,32 @@
+version: '3.4'
+
+networks:
+ samplexchange:
+
+services:
+  EQASampleExchangeSQL:
+    container_name: SampleExchangedb
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+        - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MySuperPassword1!
+    networks:
+      - samplexchange
+  eqasampleexchange:
+    container_name: EQASampleExchange
+    image: ${DOCKER_REGISTRY-}eqasampleexchange
+    build:
+      context: .
+      dockerfile: EQASampleExchange/Dockerfile
+    ports:
+        - 5000:80
+    depends_on:
+      - EQASampleExchangeSQL
+    environment:
+      - DB_HOST=EQASampleExchangeSQL
+      - DB_NAME=SampleExchangedb
+      - DB_SA_PASSWORD=MySuperPassword1!
+    networks:
+      - samplexchange
